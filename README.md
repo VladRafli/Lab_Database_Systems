@@ -4,9 +4,9 @@ This is repository by Raf-Fly to store Lab Practium and anybody can see an learn
 
 Below is the lists of documentations in this repository
 
-1. [Setting Database Environment](https://github.com/VladRafli/Lab_Database_Systems/blob/master/Lab%201/Setting%20Database.md)
+1. [Setting Database Environment](https://github.com/VladRafli/Lab_Database_Systems/blob/master/Lab%201/README.md)
 
-2. [Basic SQL](https://github.com/VladRafli/Lab_Database_Systems/blob/master/Lab%202/Basic%20SQL.md)
+2. [Basic SQL](https://github.com/VladRafli/Lab_Database_Systems/blob/master/Lab%202/README.md)
 
 Other will come later!
 

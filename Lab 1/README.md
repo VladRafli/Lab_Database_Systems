@@ -2,7 +2,7 @@
 
 **Setup SQL Database Environment on Local Computer**
 
-*By Raf-Fly*
+### By ***Raf-Fly***
 
 ---
 
@@ -33,7 +33,7 @@ After you install the application, you need to setup the environment first, the 
 
 After you start the Apache Server Service and MySQL Service, now you are set to work in Database. To see the database in XAMPP, you can open your browser, than write this url:
 
-`localhost/phpmyadmin`
+> `localhost/phpmyadmin`
 
 Now you will see the list of databases in your local computer, PHPMyAdmin help you to see the database by giving you a comfortable GUI than use an CLI, so we database admins or users are easily naviagte and see through the tables.
 
@@ -99,4 +99,10 @@ Okay, I think thats all the basics how to use PHPMyAdmin and XAMPP aplication to
 
 [Khan Academy](https://www.khanacademy.org/computing/computer-programming/sql) (Learn SQL)
 
-And other websites that you can search in google. 
+And other websites that you can search in google.
+
+---
+
+[<-- Return](https://github.com/VladRafli/Lab_Database_Systems)
+
+[Next Documentation (Basic SQL) -->](https://github.com/VladRafli/Lab_Database_Systems/blob/master/Lab%202/Basic%20SQL.md)
