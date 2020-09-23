@@ -1,0 +1,10 @@
+# Ignore all pdf, txt, rar file at local computer
+*.pdf
+*.txt
+*.rar
+
+# Ignore sql example at local/
+iwaktambak.sql
+
+# Ignore png at local/Lab\ 1
+Lab\ 1/*.png
