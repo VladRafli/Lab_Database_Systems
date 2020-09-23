@@ -200,7 +200,7 @@ Or you can add it with `ALTER`, the example like below.
 
 Done! Your **Primary Key** is ready to be used!
 
-### 9. How to add and delete **Forign Key** in Table
+### 9. How to add and delete **Foreign Key** in Table
 
 Okay, if you reach this, you should know that you have **Primary Key** to be used in other table as **Foreign Key**
 
