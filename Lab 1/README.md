@@ -105,4 +105,4 @@ And other websites that you can search in google.
 
 [<-- Return](https://github.com/VladRafli/Lab_Database_Systems)
 
-[Next Documentation (Basic SQL) -->](https://github.com/VladRafli/Lab_Database_Systems/blob/master/Lab%202/Basic%20SQL.md)
+[Next Documentation (Basic SQL) -->](https://github.com/VladRafli/Lab_Database_Systems/blob/master/Lab%202/README.md)
