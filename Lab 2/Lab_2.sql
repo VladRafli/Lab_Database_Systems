@@ -145,7 +145,15 @@ ALTER TABLE `DetailSalonServices`
 
 -- Add Primary Key of TreatmentId
 ALTER TABLE `DetailSalonServices`
-    ADD PRIMARY KEY (`TreatmentID`);
+    ADD PRIMARY KEY (`TreatmentId`);
+
+-- Add Foreign Key of TransactionId from HeaderSalonServices
+ALTER TABLE `DetailSalonServices`
+    ADD FOREIGN KEY (`TransactionId`) REFERENCES HeaderSalonServices(`TransactionId`);
+
+-- Add Foreign Key of TreatmentId
+ALTER TABLE `DetailSalonServices`
+    ADD FOREIGN KEY (`TreatmentId`) REFERENCES MsTreatment(`TreatmentId`);
 
 -- 4 Add a constraint for MsStaff
 
