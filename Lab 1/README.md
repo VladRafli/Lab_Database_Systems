@@ -10,11 +10,33 @@
 
 Before you can create and modify database, you need to download any available application on the internet. In my knowledge there is a two application that mainstream and can be used to get work in database thing.
 
-For this particular time, I used **XAMPP** to get work with database, to download the application, you can click the download link below
+> Updated at 16/09/2020
+
+For this particular time, I used **Microsoft SQL Server** to get work with database.
+
+XAMPP and Microsoft SQL Server has similar Query, but there is several different, for example in XAMPP, you cannot use Custom Constraint in **PHPMyAdmin** but you can use it in **MSSQL**.
+
+Another problem there is a data type that you can't use in **MSSQL**, but you can use it in **PHPMyAdmin**, the data type that I tried use in MSSQL is *Enum*
+
+Main difference between PHPMyAdmin and MSSQL is the SQL that used is difference, PHPMyAdmin using MariaDB, but MSSQL use MySQL.
+
+Now I used **MSSQL** because the practicum use this application and the query more suitable used in this app.
+
+To download the application, you can click the download link below
 
 ### XAMPP Download Link
 
-[Download](https://www.apachefriends.org/download.html)
+[Download XAMPP](https://www.apachefriends.org/download.html)
+
+### Microsoft SQL Server Installation Center
+
+[Download Microsoft SQL Server Installation](https://go.microsoft.com/fwlink/?linkid=866662)
+
+> Updated 26-09-2020
+>
+> To setup XAMPP Application, follow steps below
+> 
+> To setup Microsoft SQL Server Management Studio, follow steps from 7th point
 
 ### 2. Setting Up XAMPP Application
 
@@ -83,9 +105,25 @@ The concept is same, you just write the MySQL query there and then the applicati
 
 With XAMPP, you can see your query result more clear than using CLI because GUI had an User Interface so its more readable than CLI one.
 
+### 7. How to setup Microsoft SQL Server
+
+Now to setup SSMS, just install the app from the installer that you have downloaded. Follow this step to use SSMS
+
+1. Run SQL Server Installer Center
+2. Select New SQL Server Stand-alone Installation
+3. Follow installation step
+4. During installation, you will select which ... you need. *I forgot which need to be selected*
+5. *Forgot the server installation*
+6. After installing the server, you need to install Microsoft SQL Server Management Studio to edit database. Select *Install SQL Server Management Tool*
+7. After finished install the SSMS, now you are set to use it!
+
+### 8. How to use query in SSMS
+
+> This section is idle Zzzz....
+
 ---
 
-Okay, I think thats all the basics how to use PHPMyAdmin and XAMPP aplication to worh with the database. I hope its usefull and thank you for reading this! Hope you stay safe and happy coding!
+Okay, I think thats all the basics how to use PHPMyAdmin and XAMPP or MSSQL aplication to work with the database. I hope its useful and thank you for reading this! Hope you stay safe and happy coding!
 
 ### **Raf-Fly**
 
@@ -103,6 +141,6 @@ And other websites that you can search in google.
 
 ---
 
-[<-- Return](https://github.com/VladRafli/Lab_Database_Systems)
+[<-- Return -->](https://github.com/VladRafli/Lab_Database_Systems)
 
 [Next Documentation (Basic SQL) -->](https://github.com/VladRafli/Lab_Database_Systems/blob/master/Lab%202/README.md)

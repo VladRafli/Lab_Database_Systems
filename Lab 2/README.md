@@ -236,6 +236,14 @@ Done! Your **Foreign Key** is ready to be used!
 
 > **This section is under work, because the writer make mistakes too...**
 
+### 12. `ON DELETE` and `ON CHANGE` **Constraint**
+
+> **This section is under consideration, because the writer still confused**
+
+### 13. `ON DELETE` and `ON CHANGE` Constraint Properties
+
+> **Error 500, Internal Server Error. Sorry!**
+
 ---
 
 Okay, I think thats all the basics of SQL that used in this Practicum. I hope its usefull and thank you for reading this! Hope you stay safe and happy coding!
@@ -244,6 +252,8 @@ Okay, I think thats all the basics of SQL that used in this Practicum. I hope it
 
 ---
 
-[<-- Return](https://github.com/VladRafli/Lab_Database_Systems)
+[<-- Return -->](https://github.com/VladRafli/Lab_Database_Systems)
+
+[<-- Last Documentation (Setup SQL Database Environment)](https://github.com/VladRafli/Lab_Database_Systems/blob/master/Lab%201/README.md)
 
 [Next Documentation (Not Available!) -->]()

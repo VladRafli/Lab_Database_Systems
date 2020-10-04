@@ -2,6 +2,7 @@
 *.pdf
 *.txt
 *.rar
+*.docx
 
 # Ignore sql example at local/
 iwaktambak.sql
