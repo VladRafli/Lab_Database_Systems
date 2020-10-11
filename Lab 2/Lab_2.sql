@@ -27,7 +27,7 @@ CREATE TABLE MsCustomer (
     CustomerPhone VARCHAR(13),
     CustomerAddress VARCHAR(100),
     PRIMARY KEY (CustomerId),
-    CONSTRAINT Check_CustId CHECK (CustomerId LIKE ('CU[0-9][0-9][1-9]')),
+    CONSTRAINT Check_CustId CHECK (CustomerId LIKE ('CU[0-9][0-9][0-9]')),
     CONSTRAINT Check_CustGen CHECK (CustomerGender IN ('Male', 'Female'))
 );
 
@@ -43,7 +43,7 @@ CREATE TABLE MsStaff (
     StaffSalary NUMERIC(11,2),
     StaffPosition VARCHAR(20),
     PRIMARY KEY (StaffId),
-    CONSTRAINT Check_StaffId CHECK (StaffId LIKE ('SF[0-9][0-9][1-9]'))
+    CONSTRAINT Check_StaffId CHECK (StaffId LIKE ('SF[0-9][0-9][0-9]'))
 );
 
 -- 
@@ -53,7 +53,7 @@ CREATE TABLE MsTreatmentType (
     TreatmentTypeId CHAR(5) NOT NULL,
     TreatmentTypeName VARCHAR(50),
     PRIMARY KEY (TreatmentTypeId),
-    CONSTRAINT Check_TreatTypeId CHECK (TreatmentTypeId LIKE ('TT[0-9][0-9][1-9]'))
+    CONSTRAINT Check_TreatTypeId CHECK (TreatmentTypeId LIKE ('TT[0-9][0-9][0-9]'))
 );
 
 -- 
@@ -66,7 +66,7 @@ CREATE TABLE MsTreatment (
     Price NUMERIC(11,2),
     PRIMARY KEY (TreatmentId),
     FOREIGN KEY (TreatmentTypeId) REFERENCES MsTreatmentType(TreatmentTypeId) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT Check_TreatId CHECK (TreatmentId LIKE ('TM[0-9][0-9][1-9]'))
+    CONSTRAINT Check_TreatId CHECK (TreatmentId LIKE ('TM[0-9][0-9][0-9]'))
 );
 
 -- 
@@ -81,7 +81,7 @@ CREATE TABLE HeaderSalonServices (
     PRIMARY KEY (TransactionId),
     FOREIGN KEY (CustomerId) REFERENCES MsCustomer(CustomerId) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (StaffId) REFERENCES MsStaff(StaffId) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT Check_TransId CHECK (TransactionId LIKE ('TR[0-9][0-9][1-9]'))
+    CONSTRAINT Check_TransId CHECK (TransactionId LIKE ('TR[0-9][0-9][0-9]'))
 );
 
 -- 
