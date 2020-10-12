@@ -1,17 +1,22 @@
--- Lab Session 03 - SQL – Data Manipulation (1)
+-- Lab Session 04 - SQL – Data Manipulation (2)
 -- Code by Raf-Fly - https://github.com/VladRafli
 -- Source Code can be downloaded at https://github.com/VladRafli/Lab_Database_Systems/tree/master/Lab%203
 
 -- This thing is only Executed at Microsoft SQL Server Management Studio
 -- MariaDB, MySQL user might have different query
 
--- In this Practicum, we recreate Database from last Practicum with modification
-DROP DATABASE New_Database_Lab
-CREATE DATABASE New_Database_Lab
-USE New_Database_Lab
+--
+--  Create Database one
+--
+
+DROP DATABASE Lab_4_1
+
+CREATE DATABASE Lab_4_1
+
+USE Lab_4_1
 
 --
--- Recreate Database
+-- Recreate Table
 --
 
 -- 
@@ -121,7 +126,7 @@ VALUES
 INSERT INTO MsStaff
     (StaffId, StaffName, StaffGender, StaffPhone, StaffAddress, StaffSalary, StaffPosition)
 VALUES
-    ('SF001', 'Dian felita Tanoto', 'Female', '085265442222', 'Palmerah Street no 56', 15000000, 'Top Stylist'),
+    ('SF001', 'Dian Felita Tanoto', 'Female', '085265442222', 'Palmerah Street no 56', 15000000, 'Top Stylist'),
     ('SF002', 'Mellissa Pratiwi', 'Female', '085755552011', 'Kebon Jerus Street no 151', 1000000, 'Top Stylist'),
     ('SF003', 'Livia Ashianti', 'Female', '085218542222', 'Kebon Jerus Street no 19', 7000000, 'Stylist'),
     ('SF004', 'Indra Saswita', 'Male', '085564223311', 'Sunter Street no 91', 7000000, 'Stylist'),
@@ -135,13 +140,13 @@ VALUES
 -- MsTreatmentType
 --
 
-INSERT INTO MsTreatmentType (TreatmentTypeId, TreatmentTypeName)
-VALUES
-    ('TT001', ''),
-    ('TT002', ''),
-    ('TT003', ''),
-    ('TT004', ''),
-    ('TT005', '');
+INSERT INTO MsTreatmentType
+VALUES	
+    ('TT001', 'Hair Treatment'),
+    ('TT002', 'Hair Spa Treatment'),
+    ('TT003', 'Make Up and Facial'),
+    ('TT004', 'Menicure Pedicure'),
+    ('TT005', 'Premium Treatment');
 
 --
 -- MsTreatment
@@ -200,7 +205,7 @@ VALUES
     ('TR016', 'CU005', 'SF005', '2012/12/26', 'Cash'),
     ('TR017', 'CU002', 'SF001', '2012/12/26', 'Credit'),
     ('TR018', 'CU003', 'SF002', '2012/12/26', 'Debit'),
-    ('TR019', 'CU005', 'SF004', '2015/12/20', 'Credit')
+    ('TR019', 'CU005', 'SF004', '2015/12/20', 'Credit');
 
 --
 -- DetailSalonServices
@@ -228,90 +233,52 @@ VALUES
     ('TR018', 'TM005'),
     ('TR018', 'TM007');
 
--- 2. Insert following data from pdf
+--
+-- 1. Disply all female staff
+--
 
-INSERT INTO HeaderSalonServices (TransactionId, CustomerId, StaffId, TransactionDate, PaymentType)
-VALUES
-    ('TR019', 'CU005', 'SF004', DATEADD(day, 3, CAST(GETDATE() AS date)), 'Credit');
-
--- 3. Insert following data from pdf
-INSERT INTO MsStaff (StaffId, StaffName, StaffGender, StaffPhone, StaffAddress, StaffSalary, StaffPosition)
-VALUES
-    ('SF011', 'Effendy Lesmana', 'Male', '085218587878', 'Tanggerang City Street no 88', FLOOR(RAND() * (5000000 - 3000000 + 1) + 3000000), 'Stylist');
-
--- 4. Change CustomerPhone Value
-
-UPDATE  MsCustomer
-SET     CustomerPhone = REPLACE(CustomerPhone, '08%', '628')
-WHERE   CustomerPhone LIKE '08%';
-
--- 5. Change StaffPosition into Top Stylist and Increase StaffSalary to 7000000 named 'Effendy Lesmana'
-
--- 5.1 Change StaffPosition
-UPDATE  MsStaff
-SET     StaffPosition = REPLACE(StaffPosition, 'Stylist', 'Top Stylist')
-WHERE   StaffName LIKE 'Effendy Lesmana';
-
--- 5.2 Change StaffSalary
-UPDATE  MsStaff
-SET     StaffSalary = StaffSalary + 7000000
-WHERE   StaffName LIKE 'Effendy Lesmana';
-
--- 6. Change CustomerName
-UPDATE  MsCustomer
-SET     CustomerName = LEFT(CustomerName,CHARINDEX(' ',CustomerName))
-FROM    MsCustomer JOIN HeaderSalonServices
-ON      MsCustomer.CustomerId = HeaderSalonServices.CustomerId
-WHERE   DATEPART (day,TransactionDate) = 24;
-
--- 7. Change CustomerName by adding 'Ms. ' whose id 
-UPDATE  MsCustomer
-SET     CustomerName = CONCAT('Ms. ',CustomerName)
-WHERE   CustomerId IN ('CU002','CU003');
-
--- 8. Change CustomerAddress
-UPDATE  MsCustomer
-SET     CustomerAddress = 'Daan Mogot Baru Street no. 23'
-WHERE   CustomerId IN (
-    SELECT c.CustomerId FROM MsCustomer c
-        WHERE EXISTS (
-            SELECT t.CustomerId FROM MsStaff s, HeaderSalonServices t
-                WHERE c.CustomerId = t.CustomerId AND s.StaffId = t.StaffId AND StaffName LIKE 'Indra Saswita' AND DATENAME(day, TransactionDate) = 'Thursday'
-        )
-);
-
--- 9. Delete every data on HeaderSalonServices in customer with no space
-
-DELETE 
-FROM    HeaderSalonServices
-FROM    HeaderSalonServices JOIN MsCustomer 
-ON      HeaderSalonServices.CustomerId  = MsCustomer.CustomerId
-WHERE   CHARINDEX(' ', CustomerName) = 0;
-
--- 10. Delete every data on MsTreatment with 'Treatment' string
-
-DELETE
-FROM    MsTreatment
-WHERE   TreatmentName NOT LIKE ('%Treatment%');
+SELECT  *
+FROM    MsStaff
+WHERE   StaffGender IN ('Female');
 
 --
--- Check database
--- 
+-- 2. Display StaffName and StaffSalary by Concat 'Rp.' front of StaffSalary for every staff whose name contains 'm' and salary >= 10000000
+--
 
-SELECT *
-FROM MsCustomer
+SELECT  StaffName,
+        StaffSalary = 'Rp. ' + CAST(StaffSalary AS VARCHAR)
+FROM    MsStaff
+WHERE   StaffName LIKE '%m%' AND StaffSalary >= 1000000;
 
-SELECT *
-FROM MsStaff
+--
+-- 3. Display TreatmentName, Price for every treatment typed 'message / spa' or 'beauty care' (Not Yet!)
+--
+/* TreatmentType is empty! */
+SELECT  tr.TreatmentName, tt.TreatmentTypeName
+FROM    MsTreatment tr, MsTreatmentType tt
+WHERE   tr.TreatmentId = tt.TreatmentTypeId
+AND     tt.TreatmentTypeName IN ('Hair Spa Treatment', 'Premium Treatment');
 
-SELECT *
-FROM MsTreatment
+--
+-- 4. Dispaly StaffName, StaffPosition, and TransactionDate (format mon dd, yyyy) for every staff has salary between 7000000 and 10000000
+--
 
-SELECT *
-FROM MsTreatmentType
+SELECT  staff.StaffName, staff.StaffPosition, CONVERT(VARCHAR, head.TransactionDate, 107) AS TransactionDate
+FROM    HeaderSalonServices head, MsStaff staff
+WHERE   head.StaffId = staff.StaffId
+AND     staff.StaffSalary BETWEEN 7000000 AND 10000000;
 
-SELECT *
-FROM HeaderSalonServices
+--
+-- 5. Display Name (First Name), Gender (First Char), PaymentType that paid by 'Debit'
+--
 
-SELECT *
-FROM DetailSalonServices
+SELECT  LEFT(cust.CustomerName, CHARINDEX(' ', cust.CustomerName)) AS CustomerName, SUBSTRING(cust.CustomerGender, 1, 1) AS CustomerGender, head.PaymentType
+FROM    MsCustomer cust, HeaderSalonServices head
+WHERE   head.PaymentType IN ('Debit');
+
+--
+-- 6. Display Inital (First Char of Customer Name, and Uppercase), and Day (TransactionDate only Day) for every Transaction day difference is less than 3 days from 24-12-2012
+--
+
+/* SELECT  CONCAT(LEFT())
+FROM     */

@@ -76,63 +76,63 @@ INSERT INTO HeaderSalonServices
     )
 VALUES
     (
-        'TR010',
+        'TR011',
         'CU001',
         'SF004',
         '2012/12/23',
         'Credit'
     ),
     (
-        'TR011',
+        'TR012',
         'CU002',
         'SF006',
         '2012/12/24',
         'Credit'
     ),
     (
-        'TR012',
+        'TR013',
         'CU003',
         'SF007',
         '2012/12/24',
         'Cash'
     ),
     (
-        'TR013',
+        'TR014',
         'CU004',
         'SF005',
         '2012/12/25',
         'Debit'
     ),
     (
-        'TR014',
+        'TR015',
         'CU005',
         'SF007',
         '2012/12/25',
         'Debit'
     ),
     (
-        'TR015',
+        'TR016',
         'CU005',
         'SF005',
         '2012/12/26',
         'Credit'
     ),
     (
-        'TR016',
+        'TR017',
         'CU002',
         'SF001',
         '2012/12/26',
         'Cash'
     ),
     (
-        'TR017',
+        'TR018',
         'CU003',
         'SF002',
         '2012/12/26',
         'Credit'
     ),
     (
-        'TR018',
+        'TR019',
         'CU005',
         'SF001',
         '2012/12/27',
@@ -225,51 +225,9 @@ VALUES
         'TM007'
     );
 
--- 2. Insert following data from pdf
-
-INSERT INTO HeaderSalonServices (
-    TransactionId,
-    CustomerId,
-    StaffId,
-    TransactionDate,
-    PaymentType
-)
-VALUES
-    (
-        'TR019',
-        'CU005',
-        'SF004',
-        DATEADD(day, 3, CAST(GETDATE() AS date)),
-        'Credit'
-    );
-
--- 3. Insert following data from pdf
-INSERT INTO MsStaff (
-    StaffId,
-    StaffNames,
-    StaffGender,
-    StaffPhone,
-    StaffAddress,
-    StaffSalary,
-    StaffPosition
-)
-VALUES
-    (
-        'SF010',
-        'Effendy Lesmana',
-        'Male',
-        '085218587878',
-        'Tanggerang City Street no 88',
-        FLOOR(RAND() * (5000000 - 3000000 + 1) + 3000000),
-        'Stylist'
-    );
-
--- 4. Change CustomerPhone Value
-
--- 4.1 Insert Data to MsCustomer
 INSERT INTO MsCustomer (
     CustomerId,
-    CustomerName,
+    CustomerNames,
     CustomerGender,
     CustomerPhone,
     CustomerAddress
@@ -311,6 +269,49 @@ VALUES
         'Sunter Street no 42'
     );
 
+-- 2. Insert following data from pdf
+
+INSERT INTO HeaderSalonServices (
+    TransactionId,
+    CustomerId,
+    StaffId,
+    TransactionDate,
+    PaymentType
+)
+VALUES
+    (
+        'TR019',
+        'CU005',
+        'SF004',
+        DATEADD(day, 3, CAST(GETDATE() AS date)),
+        'Credit'
+    );
+
+-- 3. Insert following data from pdf
+INSERT INTO MsStaff (
+    StaffId,
+    StaffNames,
+    StaffGender,
+    StaffPhone,
+    StaffAddress,
+    StaffSalary,
+    StaffPosition
+)
+VALUES
+    (
+        'SF011',
+        'Effendy Lesmana',
+        'Male',
+        '085218587878',
+        'Tanggerang City Street no 88',
+        FLOOR(RAND() * (5000000 - 3000000 + 1) + 3000000),
+        'Stylist'
+    );
+
+-- 4. Change CustomerPhone Value
+
+-- 4.1 Moved to upper line
+
 -- 4.2 Change '08' to '628'
 
 UPDATE  MsCustomer
@@ -331,25 +332,67 @@ WHERE   StaffNames LIKE 'Effendy Lesmana';
 
 -- 6. Change CustomerName
 UPDATE  MsCustomer
-SET     CustomerName = LEFT(CustomerName, CHARINDEX(' ', CustomerName))
--- WHERE   HeaderSalonServices LIKE DATEPART(day, HeaderSalonServices.TransactionDate)
+SET     CustomerNames = LEFT(CustomerNames,CHARINDEX(' ',CustomerNames))
+FROM    MsCustomer JOIN HeaderSalonServices
+ON      MsCustomer.CustomerId = HeaderSalonServices.CustomerId
+WHERE   DATEPART (day,TransactionDate) = 24;
 
 -- 7. Change CustomerName by adding 'Ms. ' whose id 
+UPDATE  MsCustomer
+SET     CustomerNames = CONCAT('Ms.',CustomerNames)
+WHERE   CustomerId IN ('CU002','CU003');
 
+-- 8. Change CustomerAddress
+UPDATE  MsCustomer
+SET     CustomerAddress = 'Daan Mogot Baru Street no. 23'
+SELECT  TransactionId
+FROM    HeaderSalonServices
+WHERE   TransactionId IN ('TR010')
+SELECT  DATENAME(WEEKDAY,'2012/12/23') AS Thursday;
 
+-- 9. Delete every data on HeaderSalonServices in customer with no space
+
+DELETE 
+FROM    HeaderSalonServices
+FROM    HeaderSalonServices JOIN MsCustomer 
+ON      HeaderSalonServices.CustomerId  = MsCustomer.CustomerId
+WHERE   CHARINDEX(' ', CustomerNames) = 0;
+
+-- 10. Delete every data on MsTreatment with 'Treatment' string
+
+DELETE
+FROM    MsTreatment
+WHERE   TreatmentName LIKE ('%Treatment%');
+
+--
+-- Check database
+-- 
+SELECT *
+FROM MsCustomer
+
+SELECT *
+FROM MsStaff
+
+SELECT *
+FROM MsTreatment
+
+SELECT *
+FROM MsTreatmentType
+
+SELECT *
+FROM HeaderSalonServices
+
+SELECT *
+FROM DetailSalonServices
 --
 -- To check Table Info
 --
 SELECT  *
 FROM    INFORMATION_SCHEMA.COLUMNS
-WHERE   TABLE_NAME='MsStaff';
+WHERE   TABLE_NAME='TableName';
 --
 -- To check Primary Key
 --
-/* SELECT COLUMN_NAME
-FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-WHERE OBJECTPROPERTY(OBJECT_ID(CONSTRAINT_SCHEMA + '.' + QUOTENAME(CONSTRAINT_NAME)), 'IsPrimaryKey') = 1
-AND TABLE_NAME = 'TableName' AND TABLE_SCHEMA = 'Schema'; */
 EXEC sp_pkeys 'MsCustomer'
 --
 -- To check Foreign Key
