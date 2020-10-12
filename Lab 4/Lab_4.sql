@@ -9,6 +9,8 @@
 --  Create Database one
 --
 
+USE master
+
 DROP DATABASE Lab_4_1
 
 CREATE DATABASE Lab_4_1
@@ -130,11 +132,12 @@ VALUES
     ('SF002', 'Mellissa Pratiwi', 'Female', '085755552011', 'Kebon Jerus Street no 151', 1000000, 'Top Stylist'),
     ('SF003', 'Livia Ashianti', 'Female', '085218542222', 'Kebon Jerus Street no 19', 7000000, 'Stylist'),
     ('SF004', 'Indra Saswita', 'Male', '085564223311', 'Sunter Street no 91', 7000000, 'Stylist'),
-    ('SF005', 'Ryan Nixon Salin', 'Male', '085710255522', 'Sunter Street no 91', 3000000, 'Stylist'),
+    ('SF005', 'Ryan Nixon Salim', 'Male', '085710255522', 'Sunter Street no 91', 3000000, 'Stylist'),
     ('SF006', 'Jeklin Harefa', 'Female', '085265433322', 'Kebon Jeruk Street no 140', 3000000, 'Stylist'),
     ('SF007', 'Lavinia', 'Female', '085755500011', 'Kebon Jeruk Street no 153', 3000000, 'Stylist'),
     ('SF008', 'Stephen Adrianto', 'Male', '085564223311', 'Mandala Street no 14', 3000000, 'Stylist'),
-    ('SF009', 'Rico Wijaya', 'Male', '085710252525', 'Keluarga Street no 78', 3000000, 'Stylist');
+    ('SF009', 'Rico Wijaya', 'Male', '085710252525', 'Keluarga Street no 78', 3000000, 'Stylist'),
+    ('SF010', 'Effendy Lesmana', 'Male', '085218587878', 'Tanggerang City Street no 88', FLOOR(RAND() * (5000000 - 3000000 + 1) + 3000000), 'Stylist');
 
 --
 -- MsTreatmentType
@@ -253,10 +256,10 @@ WHERE   StaffName LIKE '%m%' AND StaffSalary >= 1000000;
 --
 -- 3. Display TreatmentName, Price for every treatment typed 'message / spa' or 'beauty care' (Not Yet!)
 --
-/* TreatmentType is empty! */
+
 SELECT  tr.TreatmentName, tt.TreatmentTypeName
 FROM    MsTreatment tr, MsTreatmentType tt
-WHERE   tr.TreatmentId = tt.TreatmentTypeId
+WHERE   tr.TreatmentTypeId = tt.TreatmentTypeId
 AND     tt.TreatmentTypeName IN ('Hair Spa Treatment', 'Premium Treatment');
 
 --
@@ -274,11 +277,66 @@ AND     staff.StaffSalary BETWEEN 7000000 AND 10000000;
 
 SELECT  LEFT(cust.CustomerName, CHARINDEX(' ', cust.CustomerName)) AS CustomerName, SUBSTRING(cust.CustomerGender, 1, 1) AS CustomerGender, head.PaymentType
 FROM    MsCustomer cust, HeaderSalonServices head
-WHERE   head.PaymentType IN ('Debit');
+WHERE   head.CustomerId = cust.CustomerId
+AND     head.PaymentType IN ('Debit');
 
 --
 -- 6. Display Inital (First Char of Customer Name, and Uppercase), and Day (TransactionDate only Day) for every Transaction day difference is less than 3 days from 24-12-2012
 --
 
-/* SELECT  CONCAT(LEFT())
-FROM     */
+SELECT  CONCAT(UPPER(LEFT(cust.CustomerName, 1)), UPPER(SUBSTRING(cust.CustomerName, CHARINDEX(' ', CustomerName) + 1, 1))) AS Initial, DATENAME(day, head.TransactionDate) AS Day
+FROM    MsCustomer cust, HeaderSalonServices head
+WHERE   cust.CustomerId = head.CustomerId
+AND     DATEDIFF(day, '2012/12/24', head.TransactionDate) < 3
+
+--
+-- 7. Display TransactionDate and CustomerName (Last Name)
+--
+
+SELECT  head.TransactionDate, cust.CustomerName
+FROM    MsCustomer cust, HeaderSalonServices head
+WHERE   cust.CustomerId = head.CustomerId
+AND     cust.CustomerName LIKE '% %'
+AND     DATENAME(WEEKDAY, head.TransactionDate) = 'Saturday';
+
+--
+-- 8. Display StaffName, CustomerName, CustomerPhone (Replace +62, 0), and CustomerAddress for every customer whose name contains vowel
+--
+
+SELECT  staff.StaffName, cust.CustomerName, REPLACE(cust.CustomerPhone, '08', '+62') AS CustomerPhone, cust.CustomerAddress
+FROM    MsStaff staff, MsCustomer cust, HeaderSalonServices head
+WHERE   head.CustomerId = cust.CustomerId
+AND     head.StaffId = staff.StaffId
+AND     LEN(staff.StaffName) - LEN(REPLACE(staff.StaffName, ' ', '')) >= 2
+AND     (
+            cust.CustomerName LIKE '%a%' OR
+            cust.CustomerName LIKE '%i%' OR
+            cust.CustomerName LIKE '%u%' OR
+            cust.CustomerName LIKE '%e%' OR
+            cust.CustomerName LIKE '%o%'
+        );
+
+--
+-- 9. Display StaffName, TreatmentName, and Term of Transaction (From day difference between TransactionDate and 24 Dec 2012) for ecery treatment which name length more than 20 char or contain one word
+--
+
+SELECT  staff.StaffName, treat.TreatmentName, DATEDIFF(DAY, head.TransactionDate, '2012-12-24') AS 'Term of Transaction'
+FROM    MsStaff staff, MsTreatment treat, HeaderSalonServices head, DetailSalonServices det
+WHERE   staff.StaffId = head.StaffId
+AND     det.TransactionId = head.TransactionId
+AND     treat.TreatmentId = det.TreatmentId
+AND     (
+            LEN(treat.TreatmentName) > 20 OR
+            LEN(treat.TreatmentName) - LEN(REPLACE(treat.TreatmentName, ' ', '')) >= 1
+        );
+
+--
+-- 10. Display TransactionDate, CustomerName, TreatmentName, Discount (Price to INT and multiply by 20%), and PaymentType
+--
+
+SELECT  head.TransactionDate, cust.CustomerName, treat.TreatmentName, CAST((treat.Price * 20) / 100 AS INT) AS Discount, head.PaymentType
+FROM    HeaderSalonServices head, MsCustomer cust, DetailSalonServices det, MsTreatment treat
+WHERE   head.CustomerId = cust.CustomerId
+AND     head.TransactionId = det.TransactionId
+AND     det.TreatmentId = treat.TreatmentId
+AND     DATEPART(DAY, head.TransactionDate) = 24;
