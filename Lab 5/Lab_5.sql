@@ -1,6 +1,6 @@
--- Lab Session 04 - SQL – Data Manipulation (2)
+-- Lab Session 05 - SQL – Data Manipulation (2)
 -- Code by Raf-Fly - https://github.com/VladRafli
--- Source Code can be downloaded at https://github.com/VladRafli/Lab_Database_Systems/tree/master/Lab%204
+-- Source Code can be downloaded at https://github.com/VladRafli/Lab_Database_Systems/tree/master/Lab%205
 
 -- This thing is only Executed at Microsoft SQL Server Management Studio
 -- MariaDB, MySQL user might have different query
@@ -11,11 +11,11 @@
 
 USE master
 
-DROP DATABASE Lab_4_1
+DROP DATABASE Lab_5
 
-CREATE DATABASE Lab_4_1
+CREATE DATABASE Lab_5
 
-USE Lab_4_1
+USE Lab_5
 
 --
 -- Recreate Table
@@ -237,106 +237,131 @@ VALUES
     ('TR018', 'TM007');
 
 --
--- 1. Disply all female staff
+-- 1. Display Maximum Price (Max Price of all data), Minimum Price (Min Price of all data), Average Price (Round average value all data with 2 decimal format) from MsTreatment
 --
 
-SELECT  *
-FROM    MsStaff
-WHERE   StaffGender IN ('Female');
+SELECT  MAX(Price) AS 'Maximum Price',
+        MIN(Price) AS 'Minimum Price',
+        CAST(ROUND(AVG(Price), 0) AS DECIMAL(12, 2)) AS 'Average Price'
+FROM    MsTreatment;
 
 --
--- 2. Display StaffName and StaffSalary by Concat 'Rp.' front of StaffSalary for every staff whose name contains 'm' and salary >= 10000000
+-- 2. Display StaffPosition, Gender (First Char), Average Salary (Concat with 'Rp.' and 2 Decimal Format)
 --
 
-SELECT  StaffName,
-        StaffSalary = 'Rp. ' + CAST(StaffSalary AS VARCHAR)
-FROM    MsStaff
-WHERE   StaffName LIKE '%m%' AND StaffSalary >= 1000000;
+SELECT      StaffPosition, 
+            LEFT(StaffGender, 1) AS StaffGender, 
+            CONCAT('Rp. ', CAST(AVG(StaffSalary) AS DECIMAL(12, 2))) AS StaffSalary
+FROM        MsStaff
+GROUP BY    StaffPosition, StaffGender;
 
---
--- 3. Display TreatmentName, Price for every treatment typed 'message / spa' or 'beauty care' (Not Yet!)
---
-
-SELECT  tr.TreatmentName, tt.TreatmentTypeName
-FROM    MsTreatment tr, MsTreatmentType tt
-WHERE   tr.TreatmentTypeId = tt.TreatmentTypeId
-AND     tt.TreatmentTypeName IN ('Hair Spa Treatment', 'Premium Treatment');
-
---
--- 4. Dispaly StaffName, StaffPosition, and TransactionDate (format mon dd, yyyy) for every staff has salary between 7000000 and 10000000
+-- 
+-- 3. Display TransactionDate (Format 'Mon dd, yyyy'), Total Transaction per Day (Total number of transaction per day) 
 --
 
-SELECT  staff.StaffName, staff.StaffPosition, CONVERT(VARCHAR, head.TransactionDate, 107) AS TransactionDate
-FROM    HeaderSalonServices head, MsStaff staff
-WHERE   head.StaffId = staff.StaffId
-AND     staff.StaffSalary BETWEEN 7000000 AND 10000000;
+SELECT      CONVERT(VARCHAR, TransactionDate, 107) AS TransactionDate,
+            COUNT(TransactionDate) AS 'Total Transaction per Day'
+FROM        HeaderSalonServices
+GROUP BY    TransactionDate;
 
 --
--- 5. Display Name (First Name), Gender (First Char), PaymentType that paid by 'Debit'
+-- 4. Display CustomerGender (Uppercase), Total Transaction (Total number of Transaction)
 --
 
-SELECT  LEFT(cust.CustomerName, CHARINDEX(' ', cust.CustomerName)) AS CustomerName, SUBSTRING(cust.CustomerGender, 1, 1) AS CustomerGender, head.PaymentType
-FROM    MsCustomer cust, HeaderSalonServices head
-WHERE   head.CustomerId = cust.CustomerId
-AND     head.PaymentType IN ('Debit');
+SELECT      UPPER(cust.CustomerGender) AS CustomerGender, 
+            COUNT(cust.CustomerGender) AS 'Total Transaction'
+FROM        MsCustomer cust, HeaderSalonServices head
+WHERE       cust.CustomerId = head.CustomerId
+GROUP BY    cust.CustomerGender
 
 --
--- 6. Display Inital (First Char of Customer Name, and Uppercase), and Day (TransactionDate only Day) for every Transaction day difference is less than 3 days from 24-12-2012
+-- 5. Display TreatmentTypeName, Total Transaction (Total number of Transaction). Sort data in descending format base on total transaction
 --
 
-SELECT  CONCAT(UPPER(LEFT(cust.CustomerName, 1)), UPPER(SUBSTRING(cust.CustomerName, CHARINDEX(' ', CustomerName) + 1, 1))) AS Initial, DATENAME(day, head.TransactionDate) AS Day
-FROM    MsCustomer cust, HeaderSalonServices head
-WHERE   cust.CustomerId = head.CustomerId
-AND     DATEDIFF(day, '2012/12/24', head.TransactionDate) < 3
+SELECT      MsTreatmentType.TreatmentTypeName, COUNT(DetailSalonServices.TreatmentId)
+FROM        MsTreatmentType, MsTreatment, DetailSalonServices
+WHERE       MsTreatmentType.TreatmentTypeId = MsTreatment.TreatmentTypeId
+AND         MsTreatment.TreatmentId = DetailSalonServices.TreatmentId
+GROUP BY    MsTreatmentType.TreatmentTypeName
+ORDER BY    MsTreatmentType.TreatmentTypeName DESC;
 
 --
--- 7. Display TransactionDate and CustomerName (Last Name)
+-- 6. Display Date (TransactionDate with Format 'dd Mon yyyy'), Revenue per Day (Concat with 'Rp. ' with total price) for every date with Revenue is between 100000 and 5000000
 --
 
-SELECT  head.TransactionDate, cust.CustomerName
-FROM    MsCustomer cust, HeaderSalonServices head
-WHERE   cust.CustomerId = head.CustomerId
-AND     cust.CustomerName LIKE '% %'
-AND     DATENAME(WEEKDAY, head.TransactionDate) = 'Saturday';
+SELECT      CONVERT(VARCHAR, HeaderSalonServices.TransactionDate, 113) AS 'Date', 
+            CONCAT('Rp. ', CAST(SUM(MsTreatment.Price) AS VARCHAR)) AS 'Revenue per Day'
+FROM        HeaderSalonServices, DetailSalonServices, MsTreatment
+WHERE       HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
+AND         DetailSalonServices.TreatmentId = MsTreatment.TreatmentId
+GROUP BY    TransactionDate
+HAVING      SUM(MsTreatment.Price) BETWEEN 1000000 AND 5000000;
 
 --
--- 8. Display StaffName, CustomerName, CustomerPhone (Replace +62, 0), and CustomerAddress for every customer whose name contains vowel
+-- 7. Display ID (Replace 'TT0' in TreatmentTypeID with 'Treatment Type'), TreatmentTypeName, and Total Treatment per Type (Total data with 'Treatment' string on it) and consist more than 5 treatments. Then sort data in descending format based on Total Treatment per Type
 --
 
-SELECT  staff.StaffName, cust.CustomerName, REPLACE(cust.CustomerPhone, '08', '+62') AS CustomerPhone, cust.CustomerAddress
-FROM    MsStaff staff, MsCustomer cust, HeaderSalonServices head
-WHERE   head.CustomerId = cust.CustomerId
-AND     head.StaffId = staff.StaffId
-AND     LEN(staff.StaffName) - LEN(REPLACE(staff.StaffName, ' ', '')) >= 2
-AND     (
-            cust.CustomerName LIKE '%a%' OR
-            cust.CustomerName LIKE '%i%' OR
-            cust.CustomerName LIKE '%u%' OR
-            cust.CustomerName LIKE '%e%' OR
-            cust.CustomerName LIKE '%o%'
-        );
+SELECT      REPLACE(MsTreatment.TreatmentTypeId, 'TT0', 'Treatment Type') AS 'ID', 
+            CONCAT(COUNT(MsTreatment.TreatmentTypeId), ' Treatment') AS 'Total Treatment per Type'
+FROM        MsTreatment, MsTreatmentType
+WHERE       MsTreatment.TreatmentTypeId = MsTreatmentType.TreatmentTypeId
+GROUP BY    MsTreatment.TreatmentTypeId, MsTreatmentType.TreatmentTypeName
+HAVING      COUNT(MsTreatment.TreatmentTypeId) > 5
+ORDER BY    COUNT(MsTreatment.TreatmentTypeId) DESC;
 
 --
--- 9. Display StaffName, TreatmentName, and Term of Transaction (From day difference between TransactionDate and 24 Dec 2012) for ecery treatment which name length more than 20 char or contain one word
+-- 8. Display StaffName (First Name), TransactionID, Total Treatment per Transaction (Total number of treatment)
 --
 
-SELECT  staff.StaffName, treat.TreatmentName, DATEDIFF(DAY, head.TransactionDate, '2012-12-24') AS 'Term of Transaction'
-FROM    MsStaff staff, MsTreatment treat, HeaderSalonServices head, DetailSalonServices det
-WHERE   staff.StaffId = head.StaffId
-AND     det.TransactionId = head.TransactionId
-AND     treat.TreatmentId = det.TreatmentId
-AND     (
-            LEN(treat.TreatmentName) > 20 OR
-            LEN(treat.TreatmentName) - LEN(REPLACE(treat.TreatmentName, ' ', '')) >= 1
-        );
+SELECT      CASE
+                CHARINDEX(' ', MsStaff.StaffName) WHEN 0
+                THEN
+                    MsStaff.StaffName
+                ELSE
+                    LEFT(MsStaff.StaffName, CHARINDEX(' ', MsStaff.StaffName))
+            END AS StaffName,
+            HeaderSalonServices.TransactionId, 
+            COUNT(HeaderSalonServices.TransactionId) AS 'Total Treatment per Transaction'
+FROM        MsStaff, HeaderSalonServices, DetailSalonServices
+WHERE       HeaderSalonServices.StaffId = MsStaff.StaffId
+AND         HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
+GROUP BY    MsStaff.StaffName, HeaderSalonServices.TransactionId;
 
 --
--- 10. Display TransactionDate, CustomerName, TreatmentName, Discount (Price to INT and multiply by 20%), and PaymentType
+-- 9. Display TransactionDate, CustomerName, TreatmentName, and Price for every transaction which happened on 'Thursday' and handled by staff named 'Ryan'. Order data on TransactionDate and CustomerName in Ascending format.
 --
 
-SELECT  head.TransactionDate, cust.CustomerName, treat.TreatmentName, CAST((treat.Price * 20) / 100 AS INT) AS Discount, head.PaymentType
-FROM    HeaderSalonServices head, MsCustomer cust, DetailSalonServices det, MsTreatment treat
-WHERE   head.CustomerId = cust.CustomerId
-AND     head.TransactionId = det.TransactionId
-AND     det.TreatmentId = treat.TreatmentId
-AND     DATEPART(DAY, head.TransactionDate) = 24;
+SELECT      HeaderSalonServices.TransactionDate, 
+            MsCustomer.CustomerName, 
+            MsTreatment.TreatmentName,
+            MsTreatment.Price
+FROM        MsCustomer, 
+            MsStaff, 
+            MsTreatment, 
+            HeaderSalonServices,
+            DetailSalonServices
+WHERE       HeaderSalonServices.CustomerId = MsCustomer.CustomerId
+AND         HeaderSalonServices.StaffId = MsStaff.StaffId
+AND         HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
+AND         DetailSalonServices.TreatmentId = MsTreatment.TreatmentId
+AND         DATENAME(WEEKDAY, HeaderSalonServices.TransactionDate) = 'Tuesday'
+AND         MsStaff.StaffName LIKE '%Ryan%'
+ORDER BY    HeaderSalonServices.TransactionDate, MsCustomer.CustomerName ASC;
+
+--
+-- 10. Display TransactionDate, CustomerName, and Total Price (Total all Treatment Price) for every transaction happened after 20th. Order data on TransactionDate in Ascending Format.
+--
+
+SELECT      HeaderSalonServices.TransactionDate, 
+            MsCustomer.CustomerName,
+            SUM(MsTreatment.Price) AS TotalPrice
+FROM        MsCustomer, 
+            MsTreatment, 
+            HeaderSalonServices, 
+            DetailSalonServices
+WHERE       HeaderSalonServices.CustomerId = MsCustomer.CustomerId
+AND         HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
+AND         DetailSalonServices.TreatmentId = MsTreatment.TreatmentId
+AND         DATENAME(DAY, HeaderSalonServices.TransactionDate) > 20
+GROUP BY    HeaderSalonServices.TransactionDate, MsCustomer.CustomerName
+ORDER BY    HeaderSalonServices.TransactionDate ASC;
