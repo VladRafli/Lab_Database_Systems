@@ -240,9 +240,9 @@ VALUES
 -- 1. Display Maximum Price (Max Price of all data), Minimum Price (Min Price of all data), Average Price (Round average value all data with 2 decimal format) from MsTreatment
 --
 
-SELECT  MAX(Price) AS 'Maximum Price', 
-        MIN(Price) AS 'Minimum Price', 
-        CAST(ROUND(AVG(Price), 0) AS DECIMAL(12, 2)) AS 'Average Price'
+SELECT  MAX(Price) AS 'Maximum Price', -- Ambil data paling besar di kolom Price
+        MIN(Price) AS 'Minimum Price', -- Ambil data paling kecil di kolom Price
+        CAST(ROUND(AVG(Price), 0) AS DECIMAL(12, 2)) AS 'Average Price' -- Cari rata rata dari data pada price, lalu di bulatkan dan diubah menjadi format desimal dengan 2 nol dibelakang koma
 FROM    MsTreatment;
 
 --
@@ -250,82 +250,82 @@ FROM    MsTreatment;
 --
 
 SELECT      StaffPosition, 
-            LEFT(StaffGender, 1) AS StaffGender, 
-            'Rp. ' + CAST(CAST(AVG(StaffSalary) AS DECIMAL(12, 2)) AS VARCHAR) AS StaffSalary
+            LEFT(StaffGender, 1) AS StaffGender, -- Ambil 1 Huruf dari kiri data StaffGender
+            'Rp. ' + CAST(CAST(AVG(StaffSalary) AS DECIMAL(12, 2)) AS VARCHAR) AS StaffSalary -- Cetak 'Rp. ' ditambah dengan rata rata StaffSalary lalu dibuat format desimal dengan 2 nol dibelakang koma, setelah itu angka desimal tersebut diubah menjadi VARCHAR agar dapat digabungkan dengan kata 'Rp. '
 FROM        MsStaff
-GROUP BY    StaffPosition, StaffGender;
+GROUP BY    StaffPosition, StaffGender; -- Kelompokkkan data yang sama pada StaffPostion dan StaffGender
 
 -- 
 -- 3. Display TransactionDate (Format 'Mon dd, yyyy'), Total Transaction per Day (Total number of transaction per day) 
 --
 
-SELECT      CONVERT(VARCHAR, TransactionDate, 107) AS TransactionDate,
-            COUNT(TransactionDate) AS 'Total Transaction per Day'
+SELECT      CONVERT(VARCHAR, TransactionDate, 107) AS TransactionDate, -- Ubah bentuk data dari TransactionDate menjadi 'Mon dd, yyyy'
+            COUNT(TransactionDate) AS 'Total Transaction per Day' -- Hitung jumlah data pada TransactionDate
 FROM        HeaderSalonServices
-GROUP BY    TransactionDate;
+GROUP BY    TransactionDate; -- Kelompokkan data yang sama pada TransactionDate
 
 --
 -- 4. Display CustomerGender (Uppercase), Total Transaction (Total number of Transaction)
 --
 
-SELECT      UPPER(cust.CustomerGender) AS CustomerGender, 
-            COUNT(cust.CustomerGender) AS 'Total Transaction'
+SELECT      UPPER(cust.CustomerGender) AS CustomerGender,  -- Ubah CustomerGender menjadi Uppercase
+            COUNT(cust.CustomerGender) AS 'Total Transaction' -- Hitung jumlah data pada CustomerGender
 FROM        MsCustomer cust, HeaderSalonServices head
 WHERE       cust.CustomerId = head.CustomerId
-GROUP BY    cust.CustomerGender
+GROUP BY    cust.CustomerGender -- Kelompokkan data yang sama pada CustomerGender
 
 --
 -- 5. Display TreatmentTypeName, Total Transaction (Total number of Transaction). Sort data in descending format base on total transaction
 --
 
-SELECT      MsTreatmentType.TreatmentTypeName, COUNT(DetailSalonServices.TreatmentId) AS 'Total Transaction'
+SELECT      MsTreatmentType.TreatmentTypeName, COUNT(DetailSalonServices.TreatmentId) AS 'Total Transaction' --Hitung jumlah data pada TreatmentId
 FROM        MsTreatmentType, MsTreatment, DetailSalonServices
 WHERE       MsTreatmentType.TreatmentTypeId = MsTreatment.TreatmentTypeId
 AND         MsTreatment.TreatmentId = DetailSalonServices.TreatmentId
-GROUP BY    MsTreatmentType.TreatmentTypeName
-ORDER BY    'Total Transaction' DESC;
+GROUP BY    MsTreatmentType.TreatmentTypeName -- Kelompokkan data yang sama pada TreatmentTypeName
+ORDER BY    'Total Transaction' DESC; -- Urutkan data 'Total Transaction' berdasarkan urutan Descending
 
 --
 -- 6. Display Date (TransactionDate with Format 'dd Mon yyyy'), Revenue per Day (Concat with 'Rp. ' with total price) for every date with Revenue is between 100000 and 5000000
 --
 
-SELECT      CONVERT(VARCHAR, HeaderSalonServices.TransactionDate, 113) AS 'Date', 
-            CONCAT('Rp. ', CAST(SUM(MsTreatment.Price) AS VARCHAR)) AS 'Revenue per Day'
+SELECT      CONVERT(VARCHAR, HeaderSalonServices.TransactionDate, 113) AS 'Date',  -- Mengubah format dari data TransactionDate menjadi 'dd Mon yyyy'
+            CONCAT('Rp. ', CAST(SUM(MsTreatment.Price) AS VARCHAR)) AS 'Revenue per Day' -- Hitung total Price lalu diubah menjadi tipe data VARCHAR lalu digabungkan dengan awalan 'Rp. '
 FROM        HeaderSalonServices, DetailSalonServices, MsTreatment
 WHERE       HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
 AND         DetailSalonServices.TreatmentId = MsTreatment.TreatmentId
-GROUP BY    TransactionDate
-HAVING      SUM(MsTreatment.Price) BETWEEN 1000000 AND 5000000;
+GROUP BY    TransactionDate -- Kelompokkan data yang sama pada TransactionDate
+HAVING      SUM(MsTreatment.Price) BETWEEN 1000000 AND 5000000; -- Cari data yang jumlah total price pada data yang berjumlah diantara 1 jt dan 5 jt
 
 --
 -- 7. Display ID (Replace 'TT0' in TreatmentTypeID with 'Treatment Type'), TreatmentTypeName, and Total Treatment per Type (Total data with 'Treatment' string on it) and consist more than 5 treatments. Then sort data in descending format based on Total Treatment per Type
 --
 
-SELECT      REPLACE(MsTreatment.TreatmentTypeId, 'TT0', 'Treatment Type ') AS 'ID', 
-            CONCAT(COUNT(MsTreatment.TreatmentTypeId), ' Treatment') AS 'Total Treatment per Type'
+SELECT      REPLACE(MsTreatment.TreatmentTypeId, 'TT0', 'Treatment Type ') AS 'ID', -- Ganti string 'TT0' pada TreatmentTypeId menjadi 'Treatment Type'
+            CONCAT(COUNT(MsTreatment.TreatmentTypeId), ' Treatment') AS 'Total Treatment per Type' -- Hitung jumlah TreatmentTypeId lalu tambahkan hasil tersebut dengan kata 'Treatment'
 FROM        MsTreatment, MsTreatmentType
 WHERE       MsTreatment.TreatmentTypeId = MsTreatmentType.TreatmentTypeId
-GROUP BY    MsTreatment.TreatmentTypeId, MsTreatmentType.TreatmentTypeName
-HAVING      COUNT(MsTreatment.TreatmentTypeId) > 5
-ORDER BY    COUNT(MsTreatment.TreatmentTypeId) DESC;
+GROUP BY    MsTreatment.TreatmentTypeId, MsTreatmentType.TreatmentTypeName -- Kelompokkkan data yang sama pada TreatmentTypeUd dan TreatmentTypeName
+HAVING      COUNT(MsTreatment.TreatmentTypeId) > 5 -- Cari data yang total TreatmentTypeId nya lebih dari 5 data
+ORDER BY    COUNT(MsTreatment.TreatmentTypeId) DESC; -- Urutkan data jumlah TreatmentTypeId berdasarkan urutan Descending
 
 --
 -- 8. Display StaffName (First Name), TransactionID, Total Treatment per Transaction (Total number of treatment)
 --
 
 SELECT      CASE
-                CHARINDEX(' ', MsStaff.StaffName) WHEN 0
-                THEN
-                    MsStaff.StaffName
-                ELSE
-                    LEFT(MsStaff.StaffName, CHARINDEX(' ', MsStaff.StaffName))
+                CHARINDEX(' ', MsStaff.StaffName) WHEN 0 -- Jika tidak ada data StaffName yang mengandung spasi
+                THEN -- Maka,
+                    MsStaff.StaffName -- Tampilkan data seperti biasa
+                ELSE -- Selain itu, jika ada data StaffName yang mengandung spasi, maka
+                    LEFT(MsStaff.StaffName, CHARINDEX(' ', MsStaff.StaffName)) -- Ambil huruf dari kiri lalu kekanan sampai bertemu dengan spasi pada data
             END AS StaffName,
             HeaderSalonServices.TransactionId, 
-            COUNT(HeaderSalonServices.TransactionId) AS 'Total Treatment per Transaction'
+            COUNT(HeaderSalonServices.TransactionId) AS 'Total Treatment per Transaction' -- Hitung total data TransactionId
 FROM        MsStaff, HeaderSalonServices, DetailSalonServices
 WHERE       HeaderSalonServices.StaffId = MsStaff.StaffId
 AND         HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
-GROUP BY    MsStaff.StaffName, HeaderSalonServices.TransactionId;
+GROUP BY    MsStaff.StaffName, HeaderSalonServices.TransactionId; -- Kelompokkan data yang sama pada StaffName dan TransactionId
 
 --
 -- 9. Display TransactionDate, CustomerName, TreatmentName, and Price for every transaction which happened on 'Thursday' and handled by staff named 'Ryan'. Order data on TransactionDate and CustomerName in Ascending format.
@@ -344,9 +344,9 @@ WHERE       HeaderSalonServices.CustomerId = MsCustomer.CustomerId
 AND         HeaderSalonServices.StaffId = MsStaff.StaffId
 AND         HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
 AND         DetailSalonServices.TreatmentId = MsTreatment.TreatmentId
-AND         DATENAME(WEEKDAY, HeaderSalonServices.TransactionDate) = 'Tuesday'
-AND         MsStaff.StaffName LIKE '%Ryan%'
-ORDER BY    HeaderSalonServices.TransactionDate, MsCustomer.CustomerName ASC;
+AND         DATENAME(WEEKDAY, HeaderSalonServices.TransactionDate) = 'Tuesday' -- Cari data yang TransactionDate nya ada pada hari 'Tuesday'
+AND         MsStaff.StaffName LIKE '%Ryan%' -- Cari data yang dilayani oleh staff yang bernama 'Ryan'
+ORDER BY    HeaderSalonServices.TransactionDate, MsCustomer.CustomerName ASC; -- Urutkan data TransactionDate dan CustomerName berdasarkan format Ascending
 
 --
 -- 10. Display TransactionDate, CustomerName, and Total Price (Total all Treatment Price) for every transaction happened after 20th. Order data on TransactionDate in Ascending Format.
@@ -354,7 +354,7 @@ ORDER BY    HeaderSalonServices.TransactionDate, MsCustomer.CustomerName ASC;
 
 SELECT      HeaderSalonServices.TransactionDate, 
             MsCustomer.CustomerName,
-            SUM(MsTreatment.Price) AS TotalPrice
+            SUM(MsTreatment.Price) AS TotalPrice -- Hitung total jumlah Price pada kolom
 FROM        MsCustomer, 
             MsTreatment, 
             HeaderSalonServices, 
@@ -362,6 +362,6 @@ FROM        MsCustomer,
 WHERE       HeaderSalonServices.CustomerId = MsCustomer.CustomerId
 AND         HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
 AND         DetailSalonServices.TreatmentId = MsTreatment.TreatmentId
-AND         DATENAME(DAY, HeaderSalonServices.TransactionDate) > 20
-GROUP BY    HeaderSalonServices.TransactionDate, MsCustomer.CustomerName
-ORDER BY    HeaderSalonServices.TransactionDate ASC;
+AND         DATENAME(DAY, HeaderSalonServices.TransactionDate) > 20 -- Cari data yang tanggalnya lebih dari tanggal 20
+GROUP BY    HeaderSalonServices.TransactionDate, MsCustomer.CustomerName -- Kelompokkan data yang sama pada TransactionDate dan CustomerName
+ORDER BY    HeaderSalonServices.TransactionDate ASC; -- Urutkan data TransactionDate berdasarkan format Ascending
