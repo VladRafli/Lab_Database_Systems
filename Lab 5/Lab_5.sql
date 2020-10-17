@@ -240,8 +240,8 @@ VALUES
 -- 1. Display Maximum Price (Max Price of all data), Minimum Price (Min Price of all data), Average Price (Round average value all data with 2 decimal format) from MsTreatment
 --
 
-SELECT  MAX(Price) AS 'Maximum Price',
-        MIN(Price) AS 'Minimum Price',
+SELECT  MAX(Price) AS 'Maximum Price', 
+        MIN(Price) AS 'Minimum Price', 
         CAST(ROUND(AVG(Price), 0) AS DECIMAL(12, 2)) AS 'Average Price'
 FROM    MsTreatment;
 
@@ -251,7 +251,7 @@ FROM    MsTreatment;
 
 SELECT      StaffPosition, 
             LEFT(StaffGender, 1) AS StaffGender, 
-            CONCAT('Rp. ', CAST(AVG(StaffSalary) AS DECIMAL(12, 2))) AS StaffSalary
+            'Rp. ' + CAST(CAST(AVG(StaffSalary) AS DECIMAL(12, 2)) AS VARCHAR) AS StaffSalary
 FROM        MsStaff
 GROUP BY    StaffPosition, StaffGender;
 
@@ -278,12 +278,12 @@ GROUP BY    cust.CustomerGender
 -- 5. Display TreatmentTypeName, Total Transaction (Total number of Transaction). Sort data in descending format base on total transaction
 --
 
-SELECT      MsTreatmentType.TreatmentTypeName, COUNT(DetailSalonServices.TreatmentId)
+SELECT      MsTreatmentType.TreatmentTypeName, COUNT(DetailSalonServices.TreatmentId) AS 'Total Transaction'
 FROM        MsTreatmentType, MsTreatment, DetailSalonServices
 WHERE       MsTreatmentType.TreatmentTypeId = MsTreatment.TreatmentTypeId
 AND         MsTreatment.TreatmentId = DetailSalonServices.TreatmentId
 GROUP BY    MsTreatmentType.TreatmentTypeName
-ORDER BY    MsTreatmentType.TreatmentTypeName DESC;
+ORDER BY    'Total Transaction' DESC;
 
 --
 -- 6. Display Date (TransactionDate with Format 'dd Mon yyyy'), Revenue per Day (Concat with 'Rp. ' with total price) for every date with Revenue is between 100000 and 5000000
@@ -301,7 +301,7 @@ HAVING      SUM(MsTreatment.Price) BETWEEN 1000000 AND 5000000;
 -- 7. Display ID (Replace 'TT0' in TreatmentTypeID with 'Treatment Type'), TreatmentTypeName, and Total Treatment per Type (Total data with 'Treatment' string on it) and consist more than 5 treatments. Then sort data in descending format based on Total Treatment per Type
 --
 
-SELECT      REPLACE(MsTreatment.TreatmentTypeId, 'TT0', 'Treatment Type') AS 'ID', 
+SELECT      REPLACE(MsTreatment.TreatmentTypeId, 'TT0', 'Treatment Type ') AS 'ID', 
             CONCAT(COUNT(MsTreatment.TreatmentTypeId), ' Treatment') AS 'Total Treatment per Type'
 FROM        MsTreatment, MsTreatmentType
 WHERE       MsTreatment.TreatmentTypeId = MsTreatmentType.TreatmentTypeId
