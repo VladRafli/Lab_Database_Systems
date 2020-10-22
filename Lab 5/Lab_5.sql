@@ -272,7 +272,7 @@ SELECT      UPPER(cust.CustomerGender) AS CustomerGender,  -- Ubah CustomerGende
             COUNT(cust.CustomerGender) AS 'Total Transaction' -- Hitung jumlah data pada CustomerGender
 FROM        MsCustomer cust, HeaderSalonServices head
 WHERE       cust.CustomerId = head.CustomerId
-GROUP BY    cust.CustomerGender -- Kelompokkan data yang sama pada CustomerGender
+GROUP BY    cust.CustomerGender; -- Kelompokkan data yang sama pada CustomerGender
 
 --
 -- 5. Display TreatmentTypeName, Total Transaction (Total number of Transaction). Sort data in descending format base on total transaction
