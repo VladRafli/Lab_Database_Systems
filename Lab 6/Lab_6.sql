@@ -1,6 +1,6 @@
--- Lab Session 05 - SQL – Data Manipulation (2)
+-- Lab Session 06 - SQL – Data Manipulation (4)
 -- Code by Raf-Fly - https://github.com/VladRafli
--- Source Code can be downloaded at https://github.com/VladRafli/Lab_Database_Systems/tree/master/Lab%205
+-- Source Code can be downloaded at https://github.com/VladRafli/Lab_Database_Systems/tree/master/Lab%206
 
 -- This thing is only Executed at Microsoft SQL Server Management Studio
 -- MariaDB, MySQL user might have different query
@@ -302,11 +302,8 @@ INNER JOIN  DetailSalonServices ON DetailSalonServices.TransactionId = HeaderSal
 INNER JOIN  MsTreatment ON MsTreatment.TreatmentId = DetailSalonServices.TreatmentId
 INNER JOIN  MsStaff ON MsStaff.StaffId = HeaderSalonServices.StaffId
 WHERE       MsStaff.StaffGender IN ('Female')
-AND         MsStaff.StaffPosition LIKE '%Top%'
-GROUP BY    HeaderSalonServices.TransactionDate, 
-            MsCustomer.CustomerName, 
-            MsTreatment.TreatmentName
-ORDER BY    'Day', MsCustomer.CustomerName ASC;
+AND         MsStaff.StaffPosition LIKE '%top%'
+ORDER BY    'Day' ASC;
 
 --
 -- 6. Display the first data of CustomerId, CustomerName, TransactionId, Total Treatment (obtained from the total number of treatment). Then sort the data based on Total Treatment in descending format.
