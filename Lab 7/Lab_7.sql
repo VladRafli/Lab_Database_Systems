@@ -1,4 +1,4 @@
--- Lab Session 06 - SQL – Data Manipulation (5)
+-- Lab Session 07 - SQL – Data Manipulation (5)
 -- Code by Raf-Fly - https://github.com/VladRafli
 -- Source Code can be downloaded at https://github.com/VladRafli/Lab_Database_Systems/tree/master/Lab%207
 
@@ -260,9 +260,13 @@ AND         MsTreatmentType.TreatmentTypeName NOT IN ('Hair Spa Treatment');
 -- 3. Display CustomerName, CustomerPhone, and CustomerAddress for every customer whose name is more than 8 charactes and did transaction on Friday.
 --
 
-SELECT      CustomerName, CustomerPhone, CustomerAddress
-FROM        MsCustomer
-WHERE       LEN(CustomerName) > 8;
+SELECT      MsCustomer.CustomerName, 
+            MsCustomer.CustomerPhone, 
+            MsCustomer.CustomerAddress
+FROM        MsCustomer, HeaderSalonServices
+WHERE       MsCustomer.CustomerId = HeaderSalonServices.CustomerId
+AND         LEN(MsCustomer.CustomerName) > 8
+AND         DATENAME(WEEKDAY, HeaderSalonServices.TransactionDate) = 'Friday';
 
 --
 -- 4. Display TreatmentTypeName, TreatmentName, and Price for every treatment that taken by customer whose name contains ‘Putra’ and happened on day 22th.
@@ -317,16 +321,12 @@ WHERE       EXISTS (
 -- 7. Display ID (obtained form last 3 characters of StaffID), and Name (obtained by taking character after the first space until character before second space in StaffName) for every staff whose name contains at least 3 words and hasn’t served male customer.
 --
 
-SELECT      RIGHT(3, MsStaff.StaffId) AS 'ID',
+SELECT      RIGHT(MsStaff.StaffId, 3) AS 'ID',
             SUBSTRING(
                 MsStaff.StaffName, 
-                CHARINDEX(' ', MsStaff.StaffName), 
-                SUBSTRING(
-                    MsStaff.StaffName, 
-                    CHARINDEX(' ', MsStaff.StaffName) + 1, 
-                    LEN(MsStaff.StaffName)
-                    )
-                )
+                CHARINDEX(' ', MsStaff.StaffName) + 1, 
+                CHARINDEX(' ', MsStaff.StaffName) + 1
+                ) AS StaffName
 FROM        MsStaff
 WHERE       EXISTS (
                 SELECT  MsStaff.StaffName, MsCustomer.CustomerName
@@ -362,7 +362,7 @@ WHERE       StaffSalary = Salary.Max_Salary
 OR          StaffSalary = Salary.Min_Salary;
 
 --
--- 10. . Display CustomerName,CustomerPhone,CustomerAddress, and Count Treatment (obtained from the total number of treatment) for every transaction which has the highest total number of treatment.
+-- 10. Display CustomerName,CustomerPhone,CustomerAddress, and Count Treatment (obtained from the total number of treatment) for every transaction which has the highest total number of treatment.
 --
 
 SELECT      MsCustomer.CustomerName, 
