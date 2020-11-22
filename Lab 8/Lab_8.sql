@@ -1,6 +1,6 @@
--- Lab Session 07 - SQL – Data Manipulation (5)
+-- Lab Session 08 - SQL – Data Definition (2)
 -- Code by Raf-Fly - https://github.com/VladRafli
--- Source Code can be downloaded at https://github.com/VladRafli/Lab_Database_Systems/tree/master/Lab%207
+-- Source Code can be downloaded at https://github.com/VladRafli/Lab_Database_Systems/tree/master/Lab%208
 
 -- This thing is only Executed at Microsoft SQL Server Management Studio
 -- MariaDB, MySQL user might have different query
@@ -11,11 +11,11 @@
 
 USE master
 
-DROP DATABASE Lab_7;
+DROP DATABASE Lab_8
 
-CREATE DATABASE Lab_7
+CREATE DATABASE Lab_8
 
-USE Lab_7
+USE Lab_8
 
 --
 -- Recreate Table
@@ -102,7 +102,7 @@ CREATE TABLE DetailSalonServices (
 -- Check Tables
 --
 
-SELECT  *
+SELECT  TABLE_NAME, COLUMN_NAME, IS_NULLABLE, DATA_TYPE
 FROM    INFORMATION_SCHEMA.COLUMNS
 
 --
@@ -235,163 +235,189 @@ VALUES
     ('TR018', 'TM005'),
     ('TR018', 'TM007');
 
---
--- 1. Display TreatmentId, and TreatmentName for every treatment which id is 'TM001' or 'TM002'.
---
+GO;
 
-SELECT      TreatmentId, 
-            TreatmentName
-FROM        MsTreatment
-WHERE       TreatmentId IN ('TM001') OR
-            TreatmentId IN ('TM002');
+-- 1. Create a view named ‘ViewBonus’ to display BinusId (obtained from CustomerID by replacing the first 2 characters with ‘BN ’), and CustomerName for every customer whose name is more than 10 characters.
 
---
--- 2. Display TreatmentName, and Price for every treatment which type is not 'Hair Treatment' and 'Message / Spa'
---
+CREATE VIEW ViewBonus AS
+    SELECT  REPLACE(CustomerId, 'CU', 'BN') AS "BinusID", CustomerName
+    FROM    MsCustomer
+    WHERE   LEN(CustomerName) > 10;
 
-SELECT      MsTreatment.TreatmentName, 
-            MsTreatment.Price
-FROM        MsTreatment, MsTreatmentType
-WHERE       MsTreatment.TreatmentTypeId = MsTreatmentType.TreatmentTypeId
-AND         MsTreatmentType.TreatmentTypeName NOT IN ('Hair Treatment')
-AND         MsTreatmentType.TreatmentTypeName NOT IN ('Hair Spa Treatment');
+GO;
 
---
--- 3. Display CustomerName, CustomerPhone, and CustomerAddress for every customer whose name is more than 8 charactes and did transaction on Friday.
---
+SELECT * FROM ViewBonus;
 
-SELECT      MsCustomer.CustomerName, 
-            MsCustomer.CustomerPhone, 
-            MsCustomer.CustomerAddress
-FROM        MsCustomer, HeaderSalonServices
-WHERE       MsCustomer.CustomerId = HeaderSalonServices.CustomerId
-AND         LEN(MsCustomer.CustomerName) > 8
-AND         DATENAME(WEEKDAY, HeaderSalonServices.TransactionDate) = 'Friday';
+GO;
 
---
--- 4. Display TreatmentTypeName, TreatmentName, and Price for every treatment that taken by customer whose name contains ‘Putra’ and happened on day 22th.
---
-/* Tanggal e bisanya tgl 25 */
-SELECT      MsTreatmentType.TreatmentTypeName, 
-            MsTreatment.TreatmentName, 
-            MsTreatment.Price
-FROM        MsTreatment, 
-            MsTreatmentType, 
-            MsCustomer, 
+-- 2. Create a view named ‘ViewCustomerData’ to display Name (obtained from customer’s name from the first character until a character before space), Address (obtained from CustomerAddress), and Phone (obtained from CustomerPhone) for every customer whose name contains space. 
+
+CREATE VIEW ViewCustomerData AS
+    SELECT  LEFT(CustomerName, CHARINDEX(' ', CustomerName)) AS "Name", 
+            CustomerAddress AS "Address", 
+            CustomerPhone AS "Phone"
+    FROM    MsCustomer
+    WHERE   LEN(CustomerName) - LEN(REPLACE(CustomerName, ' ', '')) > 0;
+
+GO;
+
+SELECT * FROM ViewCustomerData;
+
+GO;
+
+-- 3. Create a view named ‘ViewTreatment’ to display TreatmentName, TreatmentTypeName, Price (obtained from Price by adding ‘Rp. ’ in front of Price) for every treatment which type is ‘Hair Treatment’ and price is between 450000 and 800000. 
+
+CREATE VIEW ViewTreatment AS
+    SELECT  MsTreatment.TreatmentName, 
+            MsTreatmentType.TreatmentTypeName,
+            'Rp.' + CAST(MsTreatment.Price AS VARCHAR) AS "Price"
+    FROM    MsTreatment, MsTreatmentType
+    WHERE   MsTreatmentType.TreatmentTypeId = MsTreatment.TreatmentTypeId
+    AND     MsTreatmentType.TreatmentTypeName = 'Hair Treatment'
+    AND     MsTreatment.Price BETWEEN 450000 AND 800000;
+
+GO;
+
+SELECT * FROM ViewTreatment;
+
+GO;
+
+-- 4. Create a view named ‘ViewTransaction’ to display StaffName, CustomerName, TransactionDate (obtained from TransactionDate in ‘dd mon yyyy’ format), and PaymentType for every transaction which the transaction is between 21st and 25th day and was paid by ‘Credit’. 
+
+CREATE VIEW ViewTreatment AS
+    SELECT  MsStaff.StaffName, 
+            MsCustomer.CustomerName,
+            CONVERT(DATE, HeaderSalonServices.TransactionDate, 106) AS "TransactionDate"
+    FROM    MsStaff, MsCustomer, HeaderSalonServices
+    WHERE   MsCustomer.CustomerId = HeaderSalonServices.CustomerId
+    AND     MsStaff.StaffId = HeaderSalonServices.StaffId
+    AND     DAY(HeaderSalonServices.TransactionDate) BETWEEN 21 AND 25
+    AND     HeaderSalonServices.PaymentType = 'Credit';
+
+GO;
+
+SELECT * FROM ViewTreatment;
+
+GO;
+
+-- 5. Create a view named ‘ViewBonusCustomer’ to display BonusId (obtained from CustomerId by replacing ‘CU’ with ‘BN’), Name (Obtained from CustomerName by taking the next character after space until the last character in lower case format), Day (obtained from the day when the transaction happened), and TransactionDate (obtained from TransactionDate in ‘mm/dd/yy’ format) for every transaction which customer’s name contains space and staff’s last name contains ‘a’ character.
+
+CREATE VIEW ViewBonusCustomer AS
+    SELECT  REPLACE(MsCustomer.CustomerId, 'CU', 'BN') AS "BonusID",
+            LOWER(
+                SUBSTRING(
+                    MsCustomer.CustomerName, 
+                    CHARINDEX(' ', MsCustomer.CustomerName) + 1, 
+                    LEN(MsCustomer.CustomerName)
+                    )
+                ) AS "Name",
+            DATENAME(WEEKDAY, HeaderSalonServices.TransactionDate) AS "Day",
+            CONVERT(DATE, HeaderSalonServices.TransactionDate, 101) AS "TransactionDate"
+    FROM    MsCustomer, HeaderSalonServices
+    WHERE   MsCustomer.CustomerId = HeaderSalonServices.CustomerId
+    AND     LEN(MsCustomer.CustomerName) - LEN(REPLACE(MsCustomer.CustomerName, ' ', '')) > 0
+    AND     MsCustomer.CustomerName LIKE '%a';
+
+GO;
+
+SELECT * FROM ViewBonusCustomer;
+
+GO;
+
+-- 6. Create a view named ‘ViewTransactionByLivia’ to display TransactionId, Date (obtained from TransactionDate in ‘Mon dd, yyyy’ format), and TreatmentName for every transaction which occurred on the 21st day and handled by staff whose name is ‘Livia Ashianti’. 
+
+-- The selected data is unavailable, so I inserted it myself
+INSERT INTO DetailSalonServices (TransactionId, TreatmentId)
+VALUES ('TR005', 'TM016');
+
+GO;
+
+CREATE VIEW ViewTransactionByLivia AS
+    SELECT  HeaderSalonServices.TransactionId,
+            CONVERT(DATE, HeaderSalonServices.TransactionDate, 107) AS "Date",
+            MsTreatment.TreatmentName
+    FROM    MsStaff, 
+            MsTreatment, 
             HeaderSalonServices, 
             DetailSalonServices
-WHERE       MsTreatment.TreatmentTypeId = MsTreatmentType.TreatmentTypeId
-AND         MsCustomer.CustomerId = HeaderSalonServices.CustomerId
-AND         HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
-AND         DetailSalonServices.TreatmentId = MsTreatment.TreatmentId
-AND         MsCustomer.CustomerName LIKE '%putra%'
-AND         DATENAME(DAY, HeaderSalonServices.TransactionDate) = 25;
+    WHERE   MsStaff.StaffId = HeaderSalonServices.StaffId
+    AND     MsTreatment.TreatmentId = DetailSalonServices.TreatmentId
+    AND     DetailSalonServices.TransactionId = HeaderSalonServices.TransactionId
+    AND     DAY(HeaderSalonServices.TransactionDate) = 21
+    AND     MsStaff.StaffName LIKE 'Livia Ashianti';
 
---
--- 5. Display StaffName, CustomerName, and TransactionDate (obtained from TransactionDate in 'Mon dd,yyyy' format) for every treatment which the last character of treatmentid is an even number
---
+GO;
 
-SELECT      MsStaff.StaffName, MsCustomer.CustomerName, CONVERT(VARCHAR, HeaderSalonServices.TransactionDate, 107) AS TransactionDate
-FROM        MsCustomer, MsStaff, HeaderSalonServices, DetailSalonServices
-WHERE       EXISTS (
-                SELECT  MsTreatment.TreatmentId 
-                FROM    MsTreatment 
-                WHERE   MsCustomer.CustomerId = HeaderSalonServices.CustomerId
-                AND     MsStaff.StaffId = HeaderSalonServices.StaffId
-                AND     HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
-                AND     DetailSalonServices.TreatmentId = MsTreatment.TreatmentId
-                AND     CONVERT(INT ,RIGHT(MsTreatment.TreatmentId, 1)) % 2 = 0
-            );
+SELECT * FROM ViewTransactionByLivia;
 
---
--- 6. Display CustomerName, CustomerPhone, and CustomerAddress for every customer that was served by staff whose name’s length is an odd number
---
+GO;
 
-SELECT      CustomerName, CustomerPhone, CustomerAddress
-FROM        MsCustomer
-WHERE       EXISTS (
-                SELECT  MsStaff.StaffName
-                FROM    MsStaff, HeaderSalonServices
-                WHERE   MsStaff.StaffId = HeaderSalonServices.StaffId
-                AND     MsCustomer.CustomerId = HeaderSalonServices.CustomerId
-                AND     LEN(MsStaff.StaffName) % 2 = 1
-            );
+-- 7. Change the view named ‘ViewCustomerData’ to ID (obtained from the last 3 digit characters of (CustomerID), Name (obtained from CustomerName), Address (obtained from CustomerAddress), and Phone (obtained from CustomerPhone) for every customer whose name contains space.
 
---
--- 7. Display ID (obtained form last 3 characters of StaffID), and Name (obtained by taking character after the first space until character before second space in StaffName) for every staff whose name contains at least 3 words and hasn’t served male customer.
---
+ALTER VIEW ViewCustomerData AS
+    SELECT  RIGHT(CustomerId, CHARINDEX('U', CustomerId) + 1) AS "ID",
+            CustomerName AS "Name",
+            CustomerAddress AS "Address",
+            CustomerPhone AS "Phone"
+    FROM    MsCustomer
+    WHERE   CHARINDEX(' ', CustomerName) > 0;
 
-SELECT      RIGHT(MsStaff.StaffId, 3) AS 'ID',
-            SUBSTRING(
-                MsStaff.StaffName, 
-                CHARINDEX(' ', MsStaff.StaffName) + 1, 
-                CHARINDEX(' ', MsStaff.StaffName) + 1
-                ) AS StaffName
-FROM        MsStaff
-WHERE       EXISTS (
-                SELECT  MsStaff.StaffName, MsCustomer.CustomerName
-                FROM    MsCustomer, HeaderSalonServices
-                WHERE   MsCustomer.CustomerId = HeaderSalonServices.CustomerId
-                AND     LEN(MsStaff.StaffName) - LEN(REPLACE(MsStaff.StaffName, ' ', '')) >= 2
-                AND     MsCustomer.CustomerGender NOT LIKE 'Male'
-            );
+GO;
 
---
--- 8. Display TreatmentTypeName, TreatmentName, and Price for every treatment which price is higher than average of all treatment’s price.
---
+SELECT * FROM ViewCustomerData;
 
-SELECT      MsTreatmentType.TreatmentTypeName,
-            MsTreatment.TreatmentName,
-            MsTreatment.Price
-FROM        (SELECT AVG(Price) AS Result FROM MsTreatment) AS Avg_Price,
-            MsTreatment, 
-            MsTreatmentType
-WHERE       MsTreatment.TreatmentTypeId = MsTreatmentType.TreatmentTypeId
-AND         MsTreatment.Price > Avg_Price.Result;
+GO;
 
---
--- 9. Display StaffName, StaffPosition, and StaffSalary for every staff with highest salary or lowest salary.
---
+-- 8. Create a view named ‘ViewCustomer’ to display CustomerId, CustomerName, CustomerGender from MsCustomer, then add the data to ViewCustomer with the following specifications:
+/*  ------------------------------------------------- 
+    | CustomerID    | CustomerName  | CustomerGender|
+    -------------------------------------------------
+    | CU006         | Cristian      | Male          |
+    -------------------------------------------------
+*/
 
-SELECT      StaffName,
-            StaffPosition,
-            StaffSalary
-FROM        MsStaff,
-            (SELECT MAX(StaffSalary) AS Max_Salary, MIN(StaffSalary) AS Min_Salary FROM MsStaff) AS Salary
-WHERE       StaffSalary = Salary.Max_Salary
-OR          StaffSalary = Salary.Min_Salary;
+/* Masih Gagal! */
 
---
--- 10. Display CustomerName,CustomerPhone,CustomerAddress, and Count Treatment (obtained from the total number of treatment) for every transaction which has the highest total number of treatment.
---
+CREATE VIEW ViewCustomer AS
+    SELECT  *
+    FROM    MsCustomer;
 
-SELECT      MsCustomer.CustomerName, 
-            MsCustomer.CustomerPhone,
-            MsCustomer.CustomerAddress,
-            COUNT(MsTreatment.TreatmentId) AS 'Count Treatment'
-FROM        MsCustomer, 
-            MsTreatment,
-            HeaderSalonServices, 
-            DetailSalonServices,
-            (
-                SELECT  MAX(b.Total) AS Max_Value
-                FROM    (
-                            SELECT      COUNT(MsTreatment.TreatmentId) AS Total
-                            FROM        MsTreatment, 
-                                        MsCustomer, 
-                                        HeaderSalonServices, 
-                                        DetailSalonServices
-                            WHERE       MsCustomer.CustomerId = HeaderSalonServices.CustomerId
-                            AND         MsTreatment.TreatmentId = DetailSalonServices.TreatmentId
-                            AND         HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
-                            GROUP BY    MsCustomer.CustomerName, MsCustomer.CustomerPhone, MsCustomer.CustomerAddress
-                        ) AS b
-            ) AS a
-WHERE       MsCustomer.CustomerId = HeaderSalonServices.CustomerId
-AND         MsTreatment.TreatmentId = DetailSalonServices.TreatmentId
-AND         HeaderSalonServices.TransactionId = DetailSalonServices.TransactionId
-GROUP BY    MsCustomer.CustomerName, 
-            MsCustomer.CustomerPhone, 
-            MsCustomer.CustomerAddress, 
-            a.Max_Value
-HAVING      COUNT(MsTreatment.TreatmentId) = a.Max_Value;
+GO;
+
+INSERT INTO ViewCustomer (CustomerId, CustomerName, CustomerGender)
+VALUES ('CU006', 'Cristian', 'Male');
+
+GO;
+
+-- Untuk Perbandingan
+SELECT * FROM MsCustomer;
+
+SELECT * FROM ViewCustomer;
+
+DROP VIEW ViewCustomer;
+
+DELETE FROM MsCustomer
+WHERE   CustomerId = 'CU006'
+
+GO;
+
+-- 9. Delete data in view ‘ViewCustomerData’ that has ID ‘005’. Then display all data from ViewCustomerData.
+
+SELECT * FROM ViewCustomerData;
+
+GO;
+
+DELETE FROM ViewCustomerData
+    WHERE ID = '005';
+
+GO;
+
+SELECT * FROM ViewCustomerData;
+
+GO;
+
+-- 10. Delete the view named ‘ViewCustomerData’.
+
+DROP VIEW ViewCustomerData;
+
+GO;
