@@ -11,11 +11,11 @@
 
 USE master
 
-DROP DATABASE Lab_8
+DROP DATABASE New_Lab_8
 
-CREATE DATABASE Lab_8
+CREATE DATABASE New_Lab_8
 
-USE Lab_8
+USE New_Lab_8
 
 --
 -- Recreate Table
@@ -246,6 +246,8 @@ CREATE VIEW ViewBonus AS
 
 GO;
 
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS;
+
 SELECT * FROM ViewBonus;
 
 GO;
@@ -260,6 +262,8 @@ CREATE VIEW ViewCustomerData AS
     WHERE   LEN(CustomerName) - LEN(REPLACE(CustomerName, ' ', '')) > 0;
 
 GO;
+
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS;
 
 SELECT * FROM ViewCustomerData;
 
@@ -278,16 +282,19 @@ CREATE VIEW ViewTreatment AS
 
 GO;
 
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS;
+
 SELECT * FROM ViewTreatment;
 
 GO;
 
 -- 4. Create a view named ‘ViewTransaction’ to display StaffName, CustomerName, TransactionDate (obtained from TransactionDate in ‘dd mon yyyy’ format), and PaymentType for every transaction which the transaction is between 21st and 25th day and was paid by ‘Credit’. 
 
-CREATE VIEW ViewTreatment AS
+CREATE VIEW ViewTransaction AS
     SELECT  MsStaff.StaffName, 
             MsCustomer.CustomerName,
-            CONVERT(DATE, HeaderSalonServices.TransactionDate, 106) AS "TransactionDate"
+            CONVERT(DATE, HeaderSalonServices.TransactionDate, 106) AS "TransactionDate",
+            HeaderSalonServices.PaymentType
     FROM    MsStaff, MsCustomer, HeaderSalonServices
     WHERE   MsCustomer.CustomerId = HeaderSalonServices.CustomerId
     AND     MsStaff.StaffId = HeaderSalonServices.StaffId
@@ -296,7 +303,9 @@ CREATE VIEW ViewTreatment AS
 
 GO;
 
-SELECT * FROM ViewTreatment;
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS;
+
+SELECT * FROM ViewTransaction;
 
 GO;
 
@@ -319,6 +328,8 @@ CREATE VIEW ViewBonusCustomer AS
     AND     MsCustomer.CustomerName LIKE '%a';
 
 GO;
+
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS;
 
 SELECT * FROM ViewBonusCustomer;
 
@@ -348,6 +359,8 @@ CREATE VIEW ViewTransactionByLivia AS
 
 GO;
 
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS;
+
 SELECT * FROM ViewTransactionByLivia;
 
 GO;
@@ -376,11 +389,15 @@ GO;
     -------------------------------------------------
 */
 
-/* Masih Gagal! */
-
 CREATE VIEW ViewCustomer AS
     SELECT  *
     FROM    MsCustomer;
+
+GO;
+
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS;
+
+SELECT * FROM ViewCustomer;
 
 GO;
 
@@ -389,15 +406,7 @@ VALUES ('CU006', 'Cristian', 'Male');
 
 GO;
 
--- Untuk Perbandingan
-SELECT * FROM MsCustomer;
-
 SELECT * FROM ViewCustomer;
-
-DROP VIEW ViewCustomer;
-
-DELETE FROM MsCustomer
-WHERE   CustomerId = 'CU006'
 
 GO;
 
@@ -412,12 +421,19 @@ DELETE FROM ViewCustomerData
 
 GO;
 
+
 SELECT * FROM ViewCustomerData;
 
 GO;
 
 -- 10. Delete the view named ‘ViewCustomerData’.
 
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS;
+
 DROP VIEW ViewCustomerData;
 
 GO;
+
+-- Check Views
+
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS;
