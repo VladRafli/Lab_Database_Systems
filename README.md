@@ -18,4 +18,6 @@ This repository is shared publicly and there is License listed in the repo.
 
 Thank you!
 
-### **Raf-FLy**
+MIT License
+
+### By **Raf-Fly**
